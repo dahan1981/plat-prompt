@@ -357,7 +357,12 @@ function DashboardView({
                 autoFocus
               />
             ) : (
-              <h2>{currentObjective}</h2>
+              <div className="objective-heading-row">
+                <h2>{currentObjective}</h2>
+                <button className="objective-edit-button" type="button" onClick={() => setIsEditingObjective(true)} aria-label="Editar objetivo atual">
+                  <PencilIcon />
+                </button>
+              </div>
             )}
           </div>
           <div className="objective-controls">
@@ -375,11 +380,7 @@ function DashboardView({
                   Cancelar
                 </button>
               </div>
-            ) : (
-              <button className="objective-edit-button" type="button" onClick={() => setIsEditingObjective(true)}>
-                Alterar
-              </button>
-            )}
+            ) : null}
           </div>
         </header>
         <div className="objective-body">
@@ -1003,6 +1004,15 @@ function ChevronRightIcon() {
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="m9 18 6-6-6-6" />
+    </svg>
+  );
+}
+
+function PencilIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path d="M4 20h4l11-11-4-4L4 16v4Z" />
+      <path d="m13.5 6.5 4 4" />
     </svg>
   );
 }

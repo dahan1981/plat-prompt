@@ -492,12 +492,52 @@ select:focus-visible {
   min-width: 0;
 }
 
+.objective-heading-row {
+  align-items: flex-start;
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
 .objective-panel header h2 {
   font-family: var(--font-display);
   font-size: 36px;
   font-weight: 900;
   line-height: 1.08;
-  margin-top: 8px;
+  margin: 0;
+}
+
+.objective-edit-button {
+  align-items: center;
+  background: #141a1f;
+  border: 1px solid #27313a;
+  border-bottom-color: #0b0f12;
+  border-radius: 2px;
+  box-shadow: 0 8px 16px rgba(20, 26, 31, 0.18);
+  color: #d8e0e3;
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 34px;
+  justify-content: center;
+  margin-top: 2px;
+  width: 34px;
+}
+
+.objective-edit-button:hover {
+  background: #1b232a;
+  border-color: #33414b;
+  box-shadow: 0 10px 20px rgba(20, 26, 31, 0.24);
+  transform: translateY(-1px);
+}
+
+.objective-edit-button svg {
+  fill: none;
+  height: 15px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+  width: 15px;
 }
 
 .objective-controls {
@@ -571,8 +611,7 @@ select:focus-visible {
   gap: 8px;
 }
 
-.objective-actions button,
-.objective-edit-button {
+.objective-actions button {
   border-radius: 4px;
   font-size: 13px;
   font-weight: 700;
@@ -580,8 +619,7 @@ select:focus-visible {
   padding: 0 14px;
 }
 
-.objective-actions button:first-child,
-.objective-edit-button {
+.objective-actions button:first-child {
   background: var(--brown);
   color: #fff8f1;
 }
@@ -1466,7 +1504,6 @@ select:focus-visible {
 
 .search-button,
 .objective-actions button:first-child,
-.objective-edit-button,
 .prompt-generator > button,
 .generated-prompt button,
 .checklist-add button,
@@ -1492,7 +1529,6 @@ select:focus-visible {
 
 .search-button:hover,
 .objective-actions button:first-child:hover,
-.objective-edit-button:hover,
 .prompt-generator > button:hover,
 .generated-prompt button:hover,
 .checklist-add button:hover,
@@ -1508,7 +1544,6 @@ select:focus-visible {
 
 .search-button:active,
 .objective-actions button:first-child:active,
-.objective-edit-button:active,
 .prompt-generator > button:active,
 .generated-prompt button:active,
 .checklist-add button:active,
