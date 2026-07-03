@@ -15,6 +15,10 @@
   --sand: #dfc9a7;
   --taupe: #89786a;
   --shadow: 0 18px 45px rgba(71, 44, 31, 0.07);
+  --font-body: Inter, "Segoe UI", Roboto, Arial, Helvetica, sans-serif;
+  --font-display: Montserrat, "Arial Black", "Helvetica Neue", Arial, Helvetica, sans-serif;
+  --button-shadow: 0 8px 18px rgba(75, 39, 26, 0.12);
+  --button-shadow-hover: 0 12px 24px rgba(75, 39, 26, 0.17);
 }
 
 * {
@@ -30,7 +34,7 @@ body {
   margin: 0;
   background: var(--page);
   color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
   overflow-x: hidden;
 }
 
@@ -56,6 +60,26 @@ select {
 
 button {
   border: 0;
+}
+
+button,
+a,
+input,
+select {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgba(199, 100, 67, 0.42);
+  outline-offset: 3px;
 }
 
 .sr-only {
@@ -95,8 +119,8 @@ button {
 .sidebar-toggle {
   align-items: center;
   align-self: flex-end;
-  background: #fff;
-  border: 1px solid var(--line);
+  background: var(--surface-soft);
+  border: 1px solid var(--line-strong);
   border-radius: 4px;
   color: var(--brown);
   display: inline-flex;
@@ -104,6 +128,13 @@ button {
   justify-content: center;
   margin-bottom: 12px;
   width: 36px;
+}
+
+.sidebar-toggle:hover {
+  background: #fff;
+  border-color: var(--brown-soft);
+  box-shadow: 0 6px 14px rgba(75, 39, 26, 0.1);
+  transform: translateY(-1px);
 }
 
 .sidebar-toggle .ui-icon {
@@ -120,9 +151,11 @@ button {
 }
 
 .brand strong {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 23px;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 900;
   letter-spacing: 0;
+  line-height: 1;
   white-space: nowrap;
 }
 
@@ -162,7 +195,8 @@ button {
 
 .nav-list a.active,
 .nav-list a:hover {
-  background: linear-gradient(135deg, #6d3824, #4b271a);
+  background: #5a2d1f;
+  box-shadow: inset 4px 0 0 #c76443;
   color: #fff8f1;
 }
 
@@ -182,6 +216,13 @@ button {
   margin-top: auto;
   min-height: 76px;
   padding: 14px 17px;
+}
+
+.admin-access:hover {
+  background: #fff;
+  border-color: var(--brown-soft);
+  box-shadow: var(--button-shadow);
+  transform: translateY(-1px);
 }
 
 .admin-access > span:first-child {
@@ -291,10 +332,12 @@ button {
 }
 
 .workspace-heading h1 {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 31px;
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 900;
   line-height: 1;
   margin: 0;
+  text-transform: uppercase;
 }
 
 .top-search {
@@ -450,8 +493,10 @@ button {
 }
 
 .objective-panel header h2 {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 34px;
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1.08;
   margin-top: 8px;
 }
 
@@ -484,8 +529,9 @@ button {
 
 .objective-edit-input {
   color: var(--brown);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-display);
   font-size: 26px;
+  font-weight: 900;
   margin-top: 8px;
   min-height: 54px;
   outline: none;
@@ -587,8 +633,9 @@ button {
 
 .stat-strip strong {
   color: var(--brown);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-display);
   font-size: 34px;
+  font-weight: 900;
 }
 
 .usage-panel h2 {
@@ -916,8 +963,9 @@ button {
 
 .progress-summary strong {
   color: var(--brown);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-display);
   font-size: 40px;
+  font-weight: 900;
   line-height: 1;
 }
 
@@ -1131,8 +1179,9 @@ button {
 }
 
 .checklist-summary h2 {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-display);
   font-size: 36px;
+  font-weight: 900;
   margin: 4px 0;
 }
 
@@ -1255,8 +1304,9 @@ button {
 }
 
 .detail-dialog h2 {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-display);
   font-size: 32px;
+  font-weight: 900;
   line-height: 1.1;
   margin: 0;
 }
@@ -1392,8 +1442,9 @@ button {
 }
 
 .auth-panel h1 {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-display);
   font-size: 32px;
+  font-weight: 900;
   margin: 0;
 }
 
@@ -1411,6 +1462,129 @@ button {
 .auth-form label {
   display: grid;
   gap: 6px;
+}
+
+.search-button,
+.objective-actions button:first-child,
+.objective-edit-button,
+.prompt-generator > button,
+.generated-prompt button,
+.checklist-add button,
+.detail-dialog footer button:not(.outline-button),
+.resource-card button,
+.admin-board button,
+.auth-form button {
+  align-items: center;
+  background: #4f281b;
+  border: 1px solid #4f281b;
+  border-bottom-color: #2f170f;
+  border-radius: 4px;
+  box-shadow: var(--button-shadow);
+  color: #fffaf5;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 900;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 18px;
+  text-transform: uppercase;
+}
+
+.search-button:hover,
+.objective-actions button:first-child:hover,
+.objective-edit-button:hover,
+.prompt-generator > button:hover,
+.generated-prompt button:hover,
+.checklist-add button:hover,
+.detail-dialog footer button:not(.outline-button):hover,
+.resource-card button:hover,
+.admin-board button:hover,
+.auth-form button:hover {
+  background: #643420;
+  border-color: #643420;
+  box-shadow: var(--button-shadow-hover);
+  transform: translateY(-1px);
+}
+
+.search-button:active,
+.objective-actions button:first-child:active,
+.objective-edit-button:active,
+.prompt-generator > button:active,
+.generated-prompt button:active,
+.checklist-add button:active,
+.detail-dialog footer button:not(.outline-button):active,
+.resource-card button:active,
+.admin-board button:active,
+.auth-form button:active {
+  box-shadow: 0 4px 10px rgba(75, 39, 26, 0.12);
+  transform: translateY(0);
+}
+
+.outline-button,
+.objective-actions button:last-child,
+.edit-task,
+.remove-task,
+.checklist-card a,
+.checklist-favorites-link {
+  align-items: center;
+  background: #fffaf5;
+  border: 1px solid var(--line-strong);
+  border-bottom-color: #bda89c;
+  border-radius: 4px;
+  color: var(--brown);
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 900;
+  height: auto;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 16px;
+  text-transform: uppercase;
+}
+
+.checklist-card a,
+.checklist-favorites-link {
+  justify-content: space-between;
+  min-height: 52px;
+  width: 100%;
+}
+
+.outline-button:hover,
+.objective-actions button:last-child:hover,
+.edit-task:hover,
+.remove-task:hover,
+.checklist-card a:hover,
+.checklist-favorites-link:hover {
+  background: #fff;
+  border-color: var(--brown-soft);
+  box-shadow: 0 8px 18px rgba(75, 39, 26, 0.09);
+  transform: translateY(-1px);
+}
+
+.remove-task {
+  color: var(--terracotta);
+}
+
+.favorite-button {
+  border: 1px solid transparent;
+  border-radius: 999px;
+}
+
+.favorite-button:hover,
+.favorite-button.active {
+  background: #fff5ee;
+  border-color: #e2cabe;
+  box-shadow: 0 6px 14px rgba(75, 39, 26, 0.08);
+}
+
+.resource-tile:hover,
+.idea-open:hover {
+  transform: translateY(-1px);
+}
+
+.resource-tile:hover {
+  border-color: var(--brown-soft);
+  box-shadow: var(--button-shadow);
 }
 
 .section-label {
