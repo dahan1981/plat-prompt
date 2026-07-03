@@ -55,7 +55,9 @@ const promptTemplates = [
 const storageKeys = {
   favorites: "plat-prompt:favorites",
   checklist: "plat-prompt:checklist",
-  customChecklist: "plat-prompt:custom-checklist"
+  customChecklist: "plat-prompt:custom-checklist",
+  period: "plat-prompt:period",
+  objective: "plat-prompt:objective"
 };
 
 const defaultChecklistState = Object.fromEntries(checklistItems.map((item) => [item.id, item.status]));
@@ -71,7 +73,10 @@ export function DashboardClient({ initialSection }: DashboardClientProps) {
   const [customChecklist, setCustomChecklist] = useState<ChecklistItem[]>([]);
   const [storageLoaded, setStorageLoaded] = useState(false);
   const [selectedItem, setSelectedItem] = useState<LibraryItem | null>(null);
-  const [period, setPeriod] = useState("Maio/2024");
+  const [period, setPeriod] = useState("2024-05");
+  const [currentObjective, setCurrentObjective] = useState("Aumentar vendas com conteúdo");
+  const [objectiveDraft, setObjectiveDraft] = useState("Aumentar vendas com conteúdo");
+  const [isEditingObjective, setIsEditingObjective] = useState(false);
   const [promptBrief, setPromptBrief] = useState({
     niche: "Marketing Digital",
     objective: "Aumentar vendas",
@@ -85,6 +90,10 @@ export function DashboardClient({ initialSection }: DashboardClientProps) {
       setFavorites(readJson<string[]>(storageKeys.favorites, []));
       setChecklistState(readJson<ChecklistState>(storageKeys.checklist, defaultChecklistState));
       setCustomChecklist(readJson<ChecklistItem[]>(storageKeys.customChecklist, []));
+      const storedObjective = readJson<string>(storageKeys.objective, "Aumentar vendas com conteúdo");
+      setPeriod(readJson<string>(storageKeys.period, "2024-05"));
+      setCurrentObjective(storedObjective);
+      setObjectiveDraft(storedObjective);
       setStorageLoaded(true);
     });
 
@@ -115,6 +124,22 @@ export function DashboardClient({ initialSection }: DashboardClientProps) {
     writeJson(storageKeys.customChecklist, customChecklist);
   }, [customChecklist, storageLoaded]);
 
+  useEffect(() => {
+    if (!storageLoaded) {
+      return;
+    }
+
+    writeJson(storageKeys.period, period);
+  }, [period, storageLoaded]);
+
+  useEffect(() => {
+    if (!storageLoaded) {
+      return;
+    }
+
+    writeJson(storageKeys.objective, currentObjective);
+  }, [currentObjective, storageLoaded]);
+
   const filteredIdeas = useMemo(() => {
     return contentIdeas.filter((idea) => {
       const normalizedQuery = normalize(query);
@@ -142,6 +167,29 @@ export function DashboardClient({ initialSection }: DashboardClientProps) {
 
   function updateChecklistStatus(id: string, status: ChecklistStatus) {
     setChecklistState((current) => ({ ...current, [id]: status }));
+  }
+
+  function toggleChecklistFromDashboard(id: string) {
+    const item = allChecklist.find((checklistItem) => checklistItem.id === id);
+    const currentStatus = checklistState[id] ?? item?.status ?? "nao_iniciado";
+    updateChecklistStatus(id, currentStatus === "concluido" ? "nao_iniciado" : "concluido");
+  }
+
+  function saveObjective() {
+    const cleanedObjective = objectiveDraft.trim();
+
+    if (!cleanedObjective) {
+      return;
+    }
+
+    setCurrentObjective(cleanedObjective);
+    setObjectiveDraft(cleanedObjective);
+    setIsEditingObjective(false);
+  }
+
+  function cancelObjectiveEdit() {
+    setObjectiveDraft(currentObjective);
+    setIsEditingObjective(false);
   }
 
   function addChecklistItem(title: string) {
@@ -189,9 +237,17 @@ export function DashboardClient({ initialSection }: DashboardClientProps) {
         <DashboardView
           period={period}
           setPeriod={setPeriod}
+          currentObjective={currentObjective}
+          objectiveDraft={objectiveDraft}
+          setObjectiveDraft={setObjectiveDraft}
+          isEditingObjective={isEditingObjective}
+          setIsEditingObjective={setIsEditingObjective}
+          onSaveObjective={saveObjective}
+          onCancelObjective={cancelObjectiveEdit}
           checklistMetrics={checklistMetrics}
           checklist={allChecklist}
           checklistState={checklistState}
+          onChecklistToggle={toggleChecklistFromDashboard}
           usageMetrics={usageMetrics}
           favoritesCount={favorites.length}
           ideasCount={contentIdeas.length}
@@ -254,18 +310,34 @@ export function DashboardClient({ initialSection }: DashboardClientProps) {
 function DashboardView({
   period,
   setPeriod,
+  currentObjective,
+  objectiveDraft,
+  setObjectiveDraft,
+  isEditingObjective,
+  setIsEditingObjective,
+  onSaveObjective,
+  onCancelObjective,
   checklistMetrics,
   checklist,
   checklistState,
+  onChecklistToggle,
   usageMetrics,
   favoritesCount,
   ideasCount
 }: {
   period: string;
   setPeriod: (period: string) => void;
+  currentObjective: string;
+  objectiveDraft: string;
+  setObjectiveDraft: (objective: string) => void;
+  isEditingObjective: boolean;
+  setIsEditingObjective: (isEditing: boolean) => void;
+  onSaveObjective: () => void;
+  onCancelObjective: () => void;
   checklistMetrics: ReturnType<typeof getChecklistMetrics>;
   checklist: ChecklistItem[];
   checklistState: ChecklistState;
+  onChecklistToggle: (id: string) => void;
   usageMetrics: ReturnType<typeof getUsageMetrics>;
   favoritesCount: number;
   ideasCount: number;
@@ -274,14 +346,41 @@ function DashboardView({
     <div className="dashboard-overview">
       <section className="metric-panel objective-panel">
         <header>
-          <div>
+          <div className="objective-title">
             <span>Objetivo atual</span>
-            <h2>Aumentar vendas com conteúdo</h2>
+            {isEditingObjective ? (
+              <input
+                className="objective-edit-input"
+                value={objectiveDraft}
+                onChange={(event) => setObjectiveDraft(event.target.value)}
+                aria-label="Editar objetivo atual"
+                autoFocus
+              />
+            ) : (
+              <h2>{currentObjective}</h2>
+            )}
           </div>
-          <label>
-            Período
-            <input value={period} onChange={(event) => setPeriod(event.target.value)} aria-label="Período do objetivo atual" />
-          </label>
+          <div className="objective-controls">
+            <label className="period-picker">
+              <span>Período</span>
+              <input type="month" value={period} onChange={(event) => setPeriod(event.target.value)} aria-label="Período do objetivo atual" />
+              <strong>{formatMonthLabel(period)}</strong>
+            </label>
+            {isEditingObjective ? (
+              <div className="objective-actions" aria-label="Ações do objetivo atual">
+                <button type="button" onClick={onSaveObjective}>
+                  Salvar
+                </button>
+                <button type="button" onClick={onCancelObjective}>
+                  Cancelar
+                </button>
+              </div>
+            ) : (
+              <button className="objective-edit-button" type="button" onClick={() => setIsEditingObjective(true)}>
+                Alterar
+              </button>
+            )}
+          </div>
         </header>
         <div className="objective-body">
           <div className="target-symbol">
@@ -306,11 +405,19 @@ function DashboardView({
         <ul className="checklist-list compact">
           {checklist.slice(0, 5).map((item) => (
             <li className={checklistState[item.id] === "concluido" ? "done" : ""} key={item.id}>
-              <span />
-              {item.title}
+              <button
+                type="button"
+                onClick={() => onChecklistToggle(item.id)}
+                aria-label={checklistState[item.id] === "concluido" ? `Marcar ${item.title} como pendente` : `Marcar ${item.title} como concluído`}
+              />
+              <span>{item.title}</span>
             </li>
           ))}
         </ul>
+        <a className="checklist-favorites-link" href="/favoritos">
+          Ver favoritos relacionados
+          <ChevronRightIcon />
+        </a>
       </section>
 
       <section className="stat-strip">
@@ -318,10 +425,10 @@ function DashboardView({
           <span>Ideias disponíveis</span>
           <strong>{ideasCount}</strong>
         </article>
-        <article>
+        <a href="/favoritos">
           <span>Favoritas</span>
           <strong>{favoritesCount}</strong>
-        </article>
+        </a>
         <article>
           <span>Checklist</span>
           <strong>{checklistMetrics.percent}%</strong>
@@ -821,6 +928,19 @@ function countBy(values: string[]) {
     .map(([label, count]) => ({ label, count, percent: Math.round((count / max) * 100) }));
 }
 
+function formatMonthLabel(value: string) {
+  const [year, month] = value.split("-");
+  const date = new Date(Number(year), Number(month) - 1, 1);
+
+  if (!year || !month || Number.isNaN(date.getTime())) {
+    return "Selecionar período";
+  }
+
+  const monthName = new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(date);
+
+  return `${monthName.charAt(0).toUpperCase()}${monthName.slice(1)}/${year}`;
+}
+
 function formatIdeaForCopy(idea: ContentIdea) {
   return `${idea.title}\nObjetivo: ${idea.objective}\nFormato: ${idea.idealFormat}\nNicho: ${idea.niche}\nDica: ${idea.executionTip}\nAções: ${idea.recommendedActions.join(", ")}`;
 }
@@ -875,6 +995,14 @@ function TargetIcon() {
       <circle cx="12" cy="12" r="4" />
       <path d="M12 12 20 4" />
       <path d="M17 4h3v3" />
+    </svg>
+  );
+}
+
+function ChevronRightIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path d="m9 18 6-6-6-6" />
     </svg>
   );
 }

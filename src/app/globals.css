@@ -318,7 +318,8 @@ button {
 .filter-button svg,
 .search-button svg,
 .target-symbol svg,
-.checklist-card a svg {
+.checklist-card a svg,
+.checklist-favorites-link svg {
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -401,6 +402,7 @@ button {
 
 .metric-panel,
 .stat-strip article,
+.stat-strip a,
 .resource-tile,
 .empty-state,
 .prompt-generator,
@@ -443,10 +445,22 @@ button {
   justify-content: space-between;
 }
 
+.objective-title {
+  min-width: 0;
+}
+
 .objective-panel header h2 {
   font-family: Georgia, "Times New Roman", serif;
   font-size: 34px;
   margin-top: 8px;
+}
+
+.objective-controls {
+  align-items: end;
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+  min-width: 220px;
 }
 
 .objective-panel label {
@@ -457,7 +471,8 @@ button {
   min-width: 180px;
 }
 
-.objective-panel input,
+.objective-edit-input,
+.objective-panel .period-picker,
 .prompt-form input,
 .checklist-add input {
   border: 1px solid var(--line);
@@ -465,6 +480,70 @@ button {
   min-height: 42px;
   padding: 0 12px;
   width: 100%;
+}
+
+.objective-edit-input {
+  color: var(--brown);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 26px;
+  margin-top: 8px;
+  min-height: 54px;
+  outline: none;
+}
+
+.period-picker {
+  background: #fff;
+  cursor: pointer;
+  min-height: 72px;
+  padding: 10px 12px;
+  position: relative;
+}
+
+.period-picker input {
+  cursor: pointer;
+  inset: 0;
+  opacity: 0;
+  position: absolute;
+}
+
+.period-picker span {
+  color: var(--brown-soft);
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: none;
+}
+
+.period-picker strong {
+  color: #181616;
+  display: block;
+  font-size: 15px;
+  margin-top: 6px;
+}
+
+.objective-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.objective-actions button,
+.objective-edit-button {
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  min-height: 36px;
+  padding: 0 14px;
+}
+
+.objective-actions button:first-child,
+.objective-edit-button {
+  background: var(--brown);
+  color: #fff8f1;
+}
+
+.objective-actions button:last-child {
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  color: var(--brown);
 }
 
 .objective-body {
@@ -482,7 +561,8 @@ button {
 }
 
 .checklist-panel header,
-.stat-strip article {
+.stat-strip article,
+.stat-strip a {
   align-items: center;
   display: flex;
   justify-content: space-between;
@@ -500,7 +580,8 @@ button {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.stat-strip article {
+.stat-strip article,
+.stat-strip a {
   padding: 18px 22px;
 }
 
@@ -881,7 +962,8 @@ button {
   grid-template-columns: 22px minmax(0, 1fr);
 }
 
-.checklist-list li > span {
+.checklist-list li > button {
+  background: #fff;
   border: 1.5px solid var(--brown-soft);
   border-radius: 999px;
   display: inline-block;
@@ -890,16 +972,23 @@ button {
   width: 22px;
 }
 
+.checklist-list li > span {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  text-transform: none;
+}
+
 .checklist-list li.done {
   color: #8b817b;
   text-decoration: line-through;
 }
 
-.checklist-list li.done > span {
+.checklist-list li.done > button {
   border-color: #e5b8a5;
 }
 
-.checklist-list li.done > span::after {
+.checklist-list li.done > button::after {
   color: #d89074;
   content: "✓";
   font-size: 13px;
@@ -908,7 +997,8 @@ button {
   top: 1px;
 }
 
-.checklist-card a {
+.checklist-card a,
+.checklist-favorites-link {
   align-items: center;
   background: var(--surface-soft);
   border: 1px solid var(--line);
@@ -921,7 +1011,8 @@ button {
   padding: 0 18px;
 }
 
-.checklist-card a svg {
+.checklist-card a svg,
+.checklist-favorites-link svg {
   height: 18px;
   width: 18px;
 }
