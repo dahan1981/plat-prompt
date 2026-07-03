@@ -12,17 +12,23 @@ type DashboardClientProps = {
   initialSection: Section;
 };
 
+const rowVisuals = [
+  { icon: "video", tone: "terracotta" },
+  { icon: "chat", tone: "taupe" },
+  { icon: "gift", tone: "sand" },
+  { icon: "edit", tone: "clay" },
+  { icon: "clipboard", tone: "stone" },
+  { icon: "bulb", tone: "cream" }
+] as const;
+
 export function DashboardClient({ initialSection }: DashboardClientProps) {
   const [activeSection] = useState<Section>(initialSection);
   const [query, setQuery] = useState("");
   const [objective, setObjective] = useState("todos");
   const [format, setFormat] = useState("todos");
   const [niche, setNiche] = useState("todos");
-  const [favorites, setFavorites] = useState<string[]>(["ideia-bastidores"]);
-  const [progress, setProgress] = useState<Record<string, ContentStatus>>({
-    "ideia-bastidores": "vou_usar",
-    "ideia-prova-transformacao": "ja_usei"
-  });
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [progress, setProgress] = useState<Record<string, ContentStatus>>({});
 
   const filteredIdeas = useMemo(() => {
     return contentIdeas.filter((idea) => {
@@ -66,28 +72,23 @@ export function DashboardClient({ initialSection }: DashboardClientProps) {
 
   return (
     <AppShell activeSection={activeSection}>
-      <section className="workspace-header">
-        <div>
-          <p className="section-label">Banco de Ideias</p>
-          <h1>{getSectionTitle(activeSection)}</h1>
-          <p className="muted">{getSectionDescription(activeSection)}</p>
-        </div>
-        <a className="primary-action" href="/admin">
-          Liberar acesso
-        </a>
+      <section className="workspace-heading">
+        <h1>{getSectionTitle(activeSection)}</h1>
       </section>
 
       {(activeSection === "dashboard" || activeSection === "ideias" || activeSection === "favoritos") && (
         <>
-          <section className="filters" aria-label="Filtros de ideias">
-            <label className="search-field">
-              Buscar ideias
-              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Ex: bastidor, venda, autoridade" />
+          <section className="top-search" aria-label="Busca e filtros">
+            <label className="search-control">
+              <span className="sr-only">Buscar ideias</span>
+              <SearchIcon />
+              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar ideias" />
             </label>
-            <label>
-              Objetivo
+
+            <label className="select-control">
+              <span className="sr-only">Objetivo</span>
               <select value={objective} onChange={(event) => setObjective(event.target.value)}>
-                <option value="todos">Todos</option>
+                <option value="todos">Objetivo</option>
                 {objectives.map((item) => (
                   <option key={item} value={item}>
                     {item}
@@ -95,10 +96,11 @@ export function DashboardClient({ initialSection }: DashboardClientProps) {
                 ))}
               </select>
             </label>
-            <label>
-              Formato
+
+            <label className="select-control">
+              <span className="sr-only">Formato</span>
               <select value={format} onChange={(event) => setFormat(event.target.value)}>
-                <option value="todos">Todos</option>
+                <option value="todos">Formato</option>
                 {formats.map((item) => (
                   <option key={item} value={item}>
                     {item}
@@ -106,10 +108,11 @@ export function DashboardClient({ initialSection }: DashboardClientProps) {
                 ))}
               </select>
             </label>
-            <label>
-              Nicho
+
+            <label className="select-control">
+              <span className="sr-only">Nicho</span>
               <select value={niche} onChange={(event) => setNiche(event.target.value)}>
-                <option value="todos">Todos</option>
+                <option value="todos">Nicho</option>
                 {niches.map((item) => (
                   <option key={item} value={item}>
                     {item}
@@ -117,53 +120,96 @@ export function DashboardClient({ initialSection }: DashboardClientProps) {
                 ))}
               </select>
             </label>
+
+            <button className="filter-button" type="button" aria-label="Filtros avançados">
+              <SlidersIcon />
+            </button>
+
+            <button className="search-button" type="button">
+              Buscar ideias
+            </button>
           </section>
 
-          <div className="main-grid">
-            <section className="idea-list" aria-label="Lista de ideias">
-              {filteredIdeas.map((idea) => (
-                <IdeaCard
-                  key={idea.id}
-                  idea={idea}
-                  isFavorite={favorites.includes(idea.id)}
-                  status={progress[idea.id] ?? "nao_iniciado"}
-                  onCopy={() => copyIdea(idea.id)}
-                  onFavorite={() => toggleFavorite(idea.id)}
-                  onStatusChange={(status) => updateStatus(idea.id, status)}
-                />
-              ))}
+          <div className="dashboard-grid">
+            <section className="idea-table" aria-label="Lista de ideias">
+              <header className="list-toolbar">
+                <span>128 ideias encontradas</span>
+                <label>
+                  Ordenar por:
+                  <select aria-label="Ordenar ideias" defaultValue="recentes">
+                    <option value="recentes">Mais recentes</option>
+                    <option value="favoritas">Favoritas</option>
+                    <option value="usadas">Já usadas</option>
+                  </select>
+                </label>
+              </header>
+
+              <div className="idea-list">
+                {filteredIdeas.map((idea, index) => {
+                  const visual = rowVisuals[index % rowVisuals.length];
+
+                  return (
+                    <IdeaCard
+                      key={idea.id}
+                      idea={idea}
+                      icon={visual.icon}
+                      tone={visual.tone}
+                      isFavorite={favorites.includes(idea.id)}
+                      status={progress[idea.id] ?? "nao_iniciado"}
+                      onCopy={() => copyIdea(idea.id)}
+                      onFavorite={() => toggleFavorite(idea.id)}
+                      onStatusChange={(status) => updateStatus(idea.id, status)}
+                    />
+                  );
+                })}
+              </div>
             </section>
 
-            <aside className="side-panel" aria-label="Resumo de progresso">
-              <h2>Progresso</h2>
-              <div className="progress-item">
-                <span>Favoritas</span>
-                <strong>{favorites.length}</strong>
-              </div>
-              <div className="progress-item">
-                <span>Vou usar</span>
-                <strong>{Object.values(progress).filter((item) => item === "vou_usar").length}</strong>
-              </div>
-              <div className="progress-item">
-                <span>Ja usei</span>
-                <strong>{Object.values(progress).filter((item) => item === "ja_usei").length}</strong>
-              </div>
+            <aside className="right-rail" aria-label="Objetivo e progresso">
+              <section className="rail-card objective-card">
+                <header>
+                  <h2>Objetivo atual</h2>
+                  <button type="button">Editar</button>
+                </header>
+                <div className="objective-content">
+                  <div className="target-symbol">
+                    <TargetIcon />
+                  </div>
+                  <div>
+                    <strong>Aumentar vendas com conteúdo</strong>
+                    <span>Período: Maio/2024</span>
+                  </div>
+                </div>
+              </section>
 
-              <h3>Checklist da semana</h3>
-              <ul className="compact-list">
-                {checklistItems.slice(0, 3).map((item) => (
-                  <li key={item.id}>
-                    <span>{item.title}</span>
-                    <small>{item.suggestedFrequency}</small>
-                  </li>
-                ))}
-              </ul>
+              <section className="rail-card checklist-card">
+                <h2>Progresso do checklist</h2>
+                <div className="progress-summary">
+                  <strong>60%</strong>
+                  <span>3 de 5 concluídos</span>
+                </div>
+                <div className="progress-track">
+                  <span />
+                </div>
+                <ul className="checklist-list">
+                  {checklistItems.map((item) => (
+                    <li className={item.status === "concluido" ? "done" : ""} key={item.id}>
+                      <span />
+                      {item.title}
+                    </li>
+                  ))}
+                </ul>
+                <a href="/checklist">
+                  Ver checklist completo
+                  <ChevronIcon />
+                </a>
+              </section>
             </aside>
           </div>
         </>
       )}
 
-      {activeSection === "bonus" && <BonusGrid category="Todos os bonus" />}
+      {activeSection === "bonus" && <BonusGrid category="Todos os bônus" />}
       {activeSection === "prompts" && <BonusGrid category="Prompts" promptOnly />}
       {activeSection === "roteiros" && <BonusGrid category="Roteiros de stories" scriptsOnly />}
       {activeSection === "checklist" && <ChecklistView />}
@@ -182,7 +228,7 @@ function BonusGrid({
   scriptsOnly?: boolean;
 }) {
   const items = bonusItems.filter((item) => {
-    if (promptOnly) return item.category.toLowerCase().includes("prompt") || item.category.toLowerCase().includes("geracao");
+    if (promptOnly) return item.category.toLowerCase().includes("prompt") || item.category.toLowerCase().includes("geração");
     if (scriptsOnly) return item.category.toLowerCase().includes("roteiro");
     return true;
   });
@@ -212,7 +258,7 @@ function ChecklistView() {
           <h2>{item.goal}</h2>
           <p>{item.objective}</p>
           <div className="resource-content">{item.action}</div>
-          <button type="button">{item.status === "concluido" ? "Concluido" : "Marcar como feito"}</button>
+          <button type="button">{item.status === "concluido" ? "Concluído" : "Marcar como feito"}</button>
         </article>
       ))}
     </section>
@@ -232,13 +278,13 @@ function AdminView() {
       </article>
 
       <article>
-        <h2>Conteudos</h2>
+        <h2>Conteúdos</h2>
         <div className="admin-row">
           <span>Ideias cadastradas</span>
           <strong>{contentIdeas.length}</strong>
         </div>
         <div className="admin-row">
-          <span>Bonus e prompts</span>
+          <span>Bônus e prompts</span>
           <strong>{bonusItems.length}</strong>
         </div>
         <div className="admin-row">
@@ -252,12 +298,12 @@ function AdminView() {
 
 function getSectionTitle(section: Section) {
   const titles: Record<Section, string> = {
-    dashboard: "Sua área de conteúdo",
-    ideias: "Ideias prontas",
+    dashboard: "Dashboard",
+    ideias: "Ideias",
     bonus: "Bônus",
     prompts: "Prompts",
-    roteiros: "Roteiros de stories",
-    checklist: "Checklist de metas",
+    roteiros: "Roteiros",
+    checklist: "Checklist",
     favoritos: "Favoritos",
     admin: "Painel administrativo"
   };
@@ -265,17 +311,41 @@ function getSectionTitle(section: Section) {
   return titles[section];
 }
 
-function getSectionDescription(section: Section) {
-  const descriptions: Record<Section, string> = {
-    dashboard: "Encontre, filtre, salve e acompanhe ideias de conteúdo em poucos cliques.",
-    ideias: "Explore cards completos com objetivo, formato, exemplos, dica e ações recomendadas.",
-    bonus: "Materiais complementares organizados para acelerar a criação de conteúdo.",
-    prompts: "Prompts para criar contexto, gerar ideias e usar IA com mais clareza.",
-    roteiros: "Sequências simples para stories com foco em conexão, autoridade e venda.",
-    checklist: "Metas práticas para manter consistência sem perder estratégia.",
-    favoritos: "Tudo que você salvou para consultar ou aplicar depois.",
-    admin: "Gerencie conteúdos e libere acesso manualmente por email."
-  };
+function SearchIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <circle cx="10.5" cy="10.5" r="6" />
+      <path d="m15 15 5 5" />
+    </svg>
+  );
+}
 
-  return descriptions[section];
+function SlidersIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path d="M4 7h16" />
+      <path d="M4 17h16" />
+      <path d="M8 4v6" />
+      <path d="M16 14v6" />
+    </svg>
+  );
+}
+
+function TargetIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="8" />
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 12 20 4" />
+      <path d="M17 4h3v3" />
+    </svg>
+  );
+}
+
+function ChevronIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24">
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  );
 }
