@@ -1,46 +1,46 @@
-import type { ContentIdea, ContentStatus } from "@/types/content";
+import type { ContentIdea } from "@/types/content";
 
-type IdeaCardProps = {
-  idea: ContentIdea;
-  isFavorite: boolean;
-  status: ContentStatus;
+export type IdeaRowVisual = {
   icon: "video" | "chat" | "gift" | "edit" | "clipboard" | "bulb";
   tone: "terracotta" | "taupe" | "sand" | "clay" | "stone" | "cream";
-  onFavorite: () => void;
-  onCopy: () => void;
-  onStatusChange: (status: ContentStatus) => void;
 };
 
-export function IdeaCard({ idea, isFavorite, status, icon, tone, onCopy, onFavorite, onStatusChange }: IdeaCardProps) {
+type IdeaCardProps = IdeaRowVisual & {
+  idea: ContentIdea;
+  isFavorite: boolean;
+  onOpen: () => void;
+  onFavorite: () => void;
+  onCopy: () => void;
+};
+
+export function IdeaCard({ idea, isFavorite, icon, tone, onOpen, onCopy, onFavorite }: IdeaCardProps) {
   return (
     <article className="idea-row">
-      <div className={`idea-symbol ${tone}`}>
-        <RowIcon name={icon} />
-      </div>
-
-      <div className="idea-copy">
-        <h2>{idea.title}</h2>
-        <p>{idea.description}</p>
-        <div className="idea-tags">
-          <span>Objetivo: {idea.objective}</span>
-          <span>Formato: {idea.idealFormat}</span>
-          <span>Nicho: {idea.niche}</span>
+      <button className="idea-open" type="button" onClick={onOpen} aria-label={`Abrir ${idea.title}`}>
+        <div className={`idea-symbol ${tone}`}>
+          <RowIcon name={icon} />
         </div>
-      </div>
 
-      <button
-        className={isFavorite ? "favorite-button active" : "favorite-button"}
-        onClick={onFavorite}
-        title={isFavorite ? "Remover dos favoritos" : "Favoritar ideia"}
-        type="button"
-        aria-label={isFavorite ? "Remover dos favoritos" : "Favoritar ideia"}
-      >
-        <RowIcon name="heart" />
+        <div className="idea-copy">
+          <h2>{idea.title}</h2>
+          <p>{idea.description}</p>
+          <div className="idea-tags">
+            <span>Objetivo: {idea.objective}</span>
+            <span>Formato: {idea.idealFormat}</span>
+            <span>Nicho: {idea.niche}</span>
+          </div>
+        </div>
       </button>
 
-      <div className="row-actions">
-        <button className={status === "vou_usar" ? "soft-button active" : "soft-button"} onClick={() => onStatusChange("vou_usar")} type="button">
-          Vou usar
+      <div className="row-menu" aria-label="Ações da ideia">
+        <button
+          className={isFavorite ? "favorite-button active" : "favorite-button"}
+          onClick={onFavorite}
+          title={isFavorite ? "Remover dos favoritos" : "Favoritar ideia"}
+          type="button"
+          aria-label={isFavorite ? "Remover dos favoritos" : "Favoritar ideia"}
+        >
+          <RowIcon name="heart" />
         </button>
         <button className="outline-button" onClick={onCopy} type="button">
           Copiar
@@ -50,8 +50,8 @@ export function IdeaCard({ idea, isFavorite, status, icon, tone, onCopy, onFavor
   );
 }
 
-function RowIcon({ name }: { name: IdeaCardProps["icon"] | "heart" }) {
-  const icons: Record<IdeaCardProps["icon"] | "heart", React.ReactNode> = {
+function RowIcon({ name }: { name: IdeaRowVisual["icon"] | "heart" }) {
+  const icons: Record<IdeaRowVisual["icon"] | "heart", React.ReactNode> = {
     video: (
       <>
         <rect x="5" y="6" width="14" height="12" rx="2" />

@@ -1,11 +1,14 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 
 type AppShellProps = {
   activeSection: string;
   children: React.ReactNode;
 };
 
-type IconName = "grid" | "idea" | "gift" | "prompt" | "script" | "check" | "heart" | "lock" | "chevron";
+type IconName = "grid" | "idea" | "gift" | "prompt" | "script" | "check" | "heart" | "lock" | "chevron" | "menu";
 
 const navItems: Array<{ href: string; label: string; key: string; icon: IconName }> = [
   { href: "/dashboard", label: "Dashboard", key: "dashboard", icon: "grid" },
@@ -18,9 +21,15 @@ const navItems: Array<{ href: string; label: string; key: string; icon: IconName
 ];
 
 export function AppShell({ activeSection, children }: AppShellProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
-    <div className="app-shell">
+    <div className={isCollapsed ? "app-shell sidebar-collapsed" : "app-shell"}>
       <aside className="sidebar">
+        <button className="sidebar-toggle" type="button" onClick={() => setIsCollapsed((current) => !current)} aria-label={isCollapsed ? "Abrir menu" : "Fechar menu"}>
+          <Icon name="menu" />
+        </button>
+
         <Link className="brand" href="/dashboard" aria-label="Banco de Ideias">
           <Icon name="idea" />
           <strong>Banco de Ideias</strong>
@@ -28,9 +37,9 @@ export function AppShell({ activeSection, children }: AppShellProps) {
 
         <nav className="nav-list" aria-label="Navegação principal">
           {navItems.map((item) => (
-            <Link className={activeSection === item.key ? "active" : ""} href={item.href} key={item.key}>
+            <Link className={activeSection === item.key ? "active" : ""} href={item.href} key={item.key} title={item.label}>
               <Icon name={item.icon} />
-              {item.label}
+              <span>{item.label}</span>
             </Link>
           ))}
         </nav>
@@ -117,7 +126,14 @@ function Icon({ name }: { name: IconName }) {
         <path d="M12 14v2" />
       </>
     ),
-    chevron: <path d="m9 18 6-6-6-6" />
+    chevron: <path d="m9 18 6-6-6-6" />,
+    menu: (
+      <>
+        <path d="M4 7h16" />
+        <path d="M4 12h16" />
+        <path d="M4 17h16" />
+      </>
+    )
   };
 
   return (
